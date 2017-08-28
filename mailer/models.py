@@ -111,6 +111,7 @@ class Message(models.Model):
     message_data = models.TextField()
     when_added = models.DateTimeField(default=datetime_now)
     priority = models.CharField(max_length=1, choices=PRIORITIES, default=PRIORITY_MEDIUM)
+    to_emails = models.CharField(max_length=255)
     # @@@ campaign?
     # @@@ content_type?
 
@@ -119,6 +120,10 @@ class Message(models.Model):
     class Meta:
         verbose_name = _("message")
         verbose_name_plural = _("messages")
+
+    def save(self, **kw):
+        self.to_emails = ','.join(self.to_addresses)
+        return super(Message, self).save(**kw)
 
     def __str__(self):
         try:
@@ -278,6 +283,7 @@ class MessageLog(models.Model):
     message_id = models.TextField(editable=False, null=True)
     when_added = models.DateTimeField(db_index=True)
     priority = models.CharField(max_length=1, choices=PRIORITIES, db_index=True)
+    to_emails = models.CharField(max_length=255)
     # @@@ campaign?
 
     # additional logging fields
@@ -290,6 +296,10 @@ class MessageLog(models.Model):
     class Meta:
         verbose_name = _("message log")
         verbose_name_plural = _("message logs")
+
+    def save(self, **kw):
+        self.to_emails = ','.join(self.to_addresses)
+        return super(MessageLog, self).save(**kw)
 
     def __str__(self):
         try:
